@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <stdlib.h>
+# include <stdarg.h>
 # include <fcntl.h>
 # include <string.h>
 # include <stdio.h>
@@ -24,9 +25,12 @@
 #  define BUFFER_SIZE 50
 # endif
 
+t_list	*parser(int ac, char **av, char **envp);
+
 typedef	struct	s_list
 {
-	void			*content;
+	char			*path;
+	char			**cmd;
 	struct s_list	*next;
 }					t_list;
 

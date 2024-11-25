@@ -10,16 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "pipex.h"
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include <string.h>
-# include <stdio.h>
-# include <sys/wait.h>
-
-# include <stdarg.h>
-
+#include "pipex.h"
 #include "libft.h"
 
 // 	while (read_size)//reads and puts successive reads in a list
@@ -41,11 +32,9 @@
 void	closer(int count, ...)
 {
 	va_list	arg;
-	int		i;
 
-	i = 0;
 	va_start(arg, count);
-	while (i++ < count)
+	while (count--)
 		close(va_arg(arg, int));
 	va_end(arg);
 }
@@ -73,7 +62,7 @@ void	ft_exec(char *avcmd, int pfd[2], int state)
 // [ 5 | 6 ] 4 
 
 //creates forks until there are no more cmds to execute
-void	apply_cmds(int fdin, int fdout, int ac, char **av)
+void	apply_cmds(int ffd[2], int ac, char **av)
 {
 	int		i;
 	int		pfd[2];
@@ -91,38 +80,38 @@ void	apply_cmds(int fdin, int fdout, int ac, char **av)
 		{
 			if (i == 2)
 			{
-				dup2(fdin, 0);
-				closer(2, fdin, fdout);
+				dup2(ffd[0], 0);
+				closer(2, ffd[0], ffd[1]);
 				ft_exec(av[i], pfd, 0);
 			}
 			if (i == ac -2)
 			{
-				dup2(fdout, 1);
-				closer(2, fdin, fdout);
+				dup2(ffd[1], 1);
+				closer(2, ffd[0], ffd[1]);
 				ft_exec(av[i], pfd, 2);
 			}
-			closer(2, fdin, fdout);
+			closer(2, ffd[0], ffd[1]);
 			ft_exec(av[i], pfd, 1);
 		}
 		closer(2, pfd[1], prev);//verifier les closes (pfd[0]?)
 		prev = pfd[0];
 	}
 	waitpid(0, NULL, 0);
-	closer(3, fdin, fdout, pfd[0]);
+	closer(3, ffd[0], ffd[1], pfd[0]);
 }
 
 int main(int ac, char **av, char **envp)//add **envp? -> tableau de variables ->>>> PATH
 {
-	int		fdin;
-	int		fdout;
+	int		ffd[2];
+	t_list	*cmdlst;
 // av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
 
-	(void)envp;
-	fdin = open(av[1], O_RDONLY);
-		if (fdin == -1)
+	cmdlst = parser(ac, av, envp);
+	ffd[0] = open(av[1], O_RDONLY);
+		if (ffd[0] == -1)
 			perror("invalid infile");
-	fdout = open(av[ac - 1], O_WRONLY | O_CREAT, 0744);
-		if (fdout == -1)
+	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT, 0744);
+		if (ffd[1] == -1)
 			perror("outfile failed");
-	apply_cmds(fdin, fdout, ac, av);
+	apply_cmds(ffd, ac, av);
 }

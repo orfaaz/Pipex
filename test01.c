@@ -160,9 +160,8 @@ int	main(int ac, char **av, char **envp)
 	(void)ac;
 	(void)av;
 	printf("%d\n", getpid());
-	while (envp)
-	{
-		ft_putstr_fd(*envp, 1);
-		envp++;
-	}
+	printf("%s\n", envp[0]);
+	printf("%s\n", envp[10]);
+	printf("%s\n", envp[15]);
+	printf("%s\n", envp[20]);
 }
