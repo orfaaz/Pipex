@@ -155,13 +155,12 @@ int	main()
 	printf("%d\n", getpid());
 }*/
 
-int	main(int ac, char **av, char **envp)
+int	main()
 {
-	(void)ac;
-	(void)av;
-	printf("%d\n", getpid());
-	printf("%s\n", envp[0]);
-	printf("%s\n", envp[10]);
-	printf("%s\n", envp[15]);
-	printf("%s\n", envp[20]);
+	int	fd1 = open("intest.txt", O_WRONLY);
+	int	fd2 = dup(fd1);
+	write(fd2, "111", 3);
+	close(fd1);
+	write(fd2, "222", 3);
+	close(fd2);
 }

@@ -1,2 +1,5 @@
 repo42_00/
 .vscode
+*.o
+test
+pipex

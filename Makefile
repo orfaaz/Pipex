@@ -12,7 +12,9 @@
 
 NAME = pipex
 
-SRC = pipex.c
+SRC = pipex.c \
+	pipex_parser.c \
+	pipex_lstfct.c
 
 SRC_TEST = test01.c
 

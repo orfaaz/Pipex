@@ -40,29 +40,21 @@ void	closer(int count, ...)
 }
 
 //executes shell cmd in child process and return result through pipe
-void	ft_exec(char *avcmd, int pfd[2], int state)
+void	ft_exec(p_list *cmdlst, int pfd[2], int ffd[2])
 {
-	char	*path;
-	char	**cmd;
-
-	if (state)
-		dup2(pfd[0], 0);
-	if (state != 2)
+	if (cmdlst->next)
 		dup2(pfd[1], 1);
-	closer(2, pfd[0], pfd[1]);
-	cmd = ft_split(avcmd, ' ');
-	path = ft_strjoin("/usr/bin/", cmd[0]);
-	execve(path, cmd, NULL);
+	else
+		dup2(ffd[1], 1);
+	closer(3, pfd[0], pfd[1], ffd[1]);
+	execve(cmdlst->path, cmdlst->cmd, NULL);
 	perror("execve failed");
+	pip_lstclear(&cmdlst, &dbarr_free);
 	exit(2);
 }
 
-// [ 5 | 6 ] 4
-// [ 4 | 6 ] 5
-// [ 5 | 6 ] 4 
-
 //creates forks until there are no more cmds to execute
-void	apply_cmds(int ffd[2], int ac, char **av)
+void	apply_cmds(int ffd[2], p_list *cmdlst)
 {
 	int		i;
 	int		pfd[2];
@@ -70,41 +62,33 @@ void	apply_cmds(int ffd[2], int ac, char **av)
 	pid_t	pid;
 
 	i = 1;
-	prev = dup(STDIN_FILENO);
-	while (++i < ac - 1)
+	prev = dup(ffd[0]);
+	close(ffd[0]);
+	while (cmdlst)
 	{
 		if (pipe(pfd) == -1)
 			perror("pipe creation failed");
 		pid = fork();
 		if (!pid)
 		{
-			if (i == 2)
-			{
-				dup2(ffd[0], 0);
-				closer(2, ffd[0], ffd[1]);
-				ft_exec(av[i], pfd, 0);
-			}
-			if (i == ac -2)
-			{
-				dup2(ffd[1], 1);
-				closer(2, ffd[0], ffd[1]);
-				ft_exec(av[i], pfd, 2);
-			}
-			closer(2, ffd[0], ffd[1]);
-			ft_exec(av[i], pfd, 1);
+			dup2(prev, 0);
+			close(prev);
+			ft_exec(cmdlst, pfd, ffd);
 		}
-		closer(2, pfd[1], prev);//verifier les closes (pfd[0]?)
-		prev = pfd[0];
+		close(prev);
+		prev = dup(pfd[0]);
+		closer(2, pfd[0], pfd[1]);//verifier les closes (pfd[0]?)
+		cmdlst = cmdlst->next;
 	}
 	waitpid(0, NULL, 0);
-	closer(3, ffd[0], ffd[1], pfd[0]);
+	close(ffd[1]);
 }
 
-int main(int ac, char **av, char **envp)//add **envp? -> tableau de variables ->>>> PATH
+// av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
+int main(int ac, char **av, char **envp)
 {
 	int		ffd[2];
-	t_list	*cmdlst;
-// av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
+	p_list	*cmdlst;
 
 	cmdlst = parser(ac, av, envp);
 	ffd[0] = open(av[1], O_RDONLY);
@@ -113,5 +97,6 @@ int main(int ac, char **av, char **envp)//add **envp? -> tableau de variables ->
 	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT, 0744);
 		if (ffd[1] == -1)
 			perror("outfile failed");
-	apply_cmds(ffd, ac, av);
+	apply_cmds(ffd, cmdlst);
+	pip_lstclear(&cmdlst, &dbarr_free);
 }

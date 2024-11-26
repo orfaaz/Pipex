@@ -11,7 +11,21 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "libft.a"
+#include "libft.h"
+
+void    dbarr_free(char **arr)
+{
+    int size;
+
+    size = 0;
+    while (*arr)
+    {
+        free(*arr);
+        arr++;
+        size++;
+    }
+    free(arr - size);
+}
 
 //Creates an **arr of all pathes in envp PATH.
 //So we can look for shell cmds in these later
@@ -19,63 +33,78 @@ char    **pathsplit(char **envp)
 {
     char    **ret;
     char    *tmp;
+    int     stop;
 
-    while (*envp)
+    stop = 1;
+    while (*envp && stop)
     {
-        if (!ft_strncmp(**envp, "PATH=", 5))
+        if (!ft_strncmp(*envp, "PATH=", 5))
         {
-            tmp = ft_substr(**envp, 0, 5);
+            tmp = ft_substr(*envp, 5, ft_strlen(*envp));
             ret = ft_split(tmp, ':');
             free(tmp);
+            stop = 0;
         }
         envp++;
     }
-    return(ret);
+    return (ret);
 }
 
 //If the cmd exists in the given path, this will create a node
-//w/ the infos we'll need for the execve().
-int check_access(char *path, char *avi, t_list **cmdlst)
+//w the infos we'll need for the execve().
+int check_access(char *path, char *avi, p_list **cmdlst)
 {
     char    *path_cmd;
     char    **cmd;
 
-    cmd = ft_split(avi);
+    cmd = ft_split(avi, ' ');
     if (!cmd)
-        return(-1);
+    {
+        perror("slit failed");
+        exit (2);
+    }
     if (!access(cmd[0], X_OK))
     {
-        ft_lstadd_back(cmdlst, ft_lstnew(path, cmd));
-        return(1);
+        pip_lstadd_back(cmdlst, pip_lstnew(path, cmd));
+        return (1);
     }
-    path_cmd = ft_strnjoin(3, path, "/", cmd[0]); //!\fct a creer
-    if (access(path_cmd, X_OK));
+    path_cmd = ft_vastrjoin(3, path, "/", cmd[0]);
+    if (!access(path_cmd, X_OK))
     {
-        ft_lstadd_back(cmdlst, ft_lstnew(path, cmd));
-        return(1);
+        pip_lstadd_back(cmdlst, pip_lstnew(path_cmd, cmd));
+        return (1);
     }
     free(path_cmd);
-    while(cmd);
-    {
-        free(*cmd);
-        cmd++;
-    }
-    return(0);
+    dbarr_free(cmd);
+    return (0);
 }
 
 //check X_OK of each cmd. 
 //return a lst containing each path and **cmd
-t_list  *parser(int ac, char **av, char **envp)
+p_list  *parser(int ac, char **av, char **envp)
 {
-    t_list  *cmdlst;
+    p_list  *cmdlst;
     char    **envpath;
     int     i;
+    int     j;
 
     envpath = pathsplit(envp);
+    cmdlst = NULL;
     i = 1;
+    j = 0;
     while (++i < ac - 1)
     {
         while (envpath[j] && !check_access(envpath[j], av[i], &cmdlst))
+        {
+            if (!envpath[j])
+            {
+                ft_printf("%s: cmd not found", av[i]);
+                exit(2);
+            }
             j++;
+        }
+        j = 0;
     }
+    dbarr_free(envpath);
+    return (cmdlst);
 }

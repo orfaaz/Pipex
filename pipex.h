@@ -21,17 +21,18 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
-# ifndef
-#  define BUFFER_SIZE 50
-# endif
-
-t_list	*parser(int ac, char **av, char **envp);
-
-typedef	struct	s_list
+typedef	struct	q_list
 {
 	char			*path;
 	char			**cmd;
-	struct s_list	*next;
-}					t_list;
+	struct q_list	*next;
+}					p_list;
+
+p_list	*parser(int ac, char **av, char **envp);
+void    dbarr_free(char **arr);
+p_list  *pip_lstnew(char *path, char **cmd);
+p_list	*pip_lstlast(p_list *lst);
+void	pip_lstadd_back(p_list **lst, p_list *new);
+void	pip_lstclear(p_list **lst, void (*del)(char **));
 
 #endif

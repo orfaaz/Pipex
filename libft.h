@@ -35,9 +35,12 @@ void	*ft_memcpy(void *dest, const void *src, size_t n);
 void	*ft_memmove(void *dest, const void *src, size_t n);
 void	*ft_memset(void *dest, int c, size_t n);
 void	ft_putchar_fd(char c, int fd);
+int		ft_putchar_int(char c, int fd);
 void	ft_putendl_fd(char *str, int fd);
 void	ft_putnbr_fd(int nbr, int fd);
+int		ft_putnbr_int(int nbr);
 void	ft_putstr_fd(char *str, int fd);
+int		ft_putstr_int(char *str, int fd);
 char	**ft_split(const char *str, char c);
 char	*ft_strchr(const char *src, int needl);
 char	*ft_strdup(const char *src);
@@ -54,7 +57,9 @@ char	*ft_strtrim(const char *str, const char *needl);
 char	*ft_substr(const char *str, unsigned int start, size_t len);
 int		ft_tolower(int c);
 int		ft_toupper(int c);
+int		ft_printf(const char *format, ...);
 char	*get_next_line(int fd);
+char	*ft_vastrjoin(size_t n, ...);
 
 typedef struct s_list
 {
