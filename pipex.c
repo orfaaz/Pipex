@@ -77,7 +77,7 @@ void	apply_cmds(int ffd[2], p_list *cmdlst)
 		}
 		close(prev);
 		prev = dup(pfd[0]);
-		closer(2, pfd[0], pfd[1]);//verifier les closes (pfd[0]?)
+		closer(2, pfd[0], pfd[1]);
 		cmdlst = cmdlst->next;
 	}
 	waitpid(0, NULL, 0);
@@ -90,13 +90,19 @@ int main(int ac, char **av, char **envp)
 	int		ffd[2];
 	p_list	*cmdlst;
 
-	cmdlst = parser(ac, av, envp);
 	ffd[0] = open(av[1], O_RDONLY);
 		if (ffd[0] == -1)
+		{
 			perror("invalid infile");
-	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT, 0744);
+			exit(2);
+		}
+	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0744);
 		if (ffd[1] == -1)
+		{
 			perror("outfile failed");
+			exit(2);
+		}
+	cmdlst = parser(ac, av, envp);
 	apply_cmds(ffd, cmdlst);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }

@@ -57,6 +57,8 @@ int check_access(char *path, char *avi, p_list **cmdlst)
     char    *path_cmd;
     char    **cmd;
 
+    if (!*avi)
+        return (0);
     cmd = ft_split(avi, ' ');
     if (!cmd)
     {
@@ -96,12 +98,12 @@ p_list  *parser(int ac, char **av, char **envp)
     {
         while (envpath[j] && !check_access(envpath[j], av[i], &cmdlst))
         {
+            j++;
             if (!envpath[j])
             {
-                ft_printf("%s: cmd not found", av[i]);
+                ft_printf("cmd not found: %s\n", av[i]);
                 exit(2);
             }
-            j++;
         }
         j = 0;
     }

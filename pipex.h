@@ -30,6 +30,7 @@ typedef	struct	q_list
 
 p_list	*parser(int ac, char **av, char **envp);
 void    dbarr_free(char **arr);
+void	closer(int count, ...);
 p_list  *pip_lstnew(char *path, char **cmd);
 p_list	*pip_lstlast(p_list *lst);
 void	pip_lstadd_back(p_list **lst, p_list *new);
