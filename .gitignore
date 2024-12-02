@@ -1,5 +1,6 @@
 repo42_00/
 .vscode
+.gdb_history
 *.o
 test
 pipex

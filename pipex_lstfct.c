@@ -6,27 +6,27 @@
 /*   By: agamay <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 14:07:15 by agamay            #+#    #+#             */
-/*   Updated: 2024/11/26 14:07:17 by agamay           ###   ########.fr       */
+/*   Updated: 2024/12/02 16:37:45 by agamay           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include "libft.h"
 
-p_list  *pip_lstnew(char *path, char **cmd)
+t_piplist	*pip_lstnew(char *path, char **cmd)
 {
-    p_list	*new_node;
+	t_piplist	*new_node;
 
-	new_node = malloc(sizeof(p_list));
+	new_node = malloc(sizeof(t_piplist));
 	if (!new_node)
 		return (NULL);
 	new_node->path = path;
-    new_node->cmd = cmd;
+	new_node->cmd = cmd;
 	new_node->next = NULL;
 	return (new_node);
 }
 
-p_list	*pip_lstlast(p_list *lst)
+t_piplist	*pip_lstlast(t_piplist *lst)
 {
 	if (!lst)
 		return (NULL);
@@ -35,9 +35,9 @@ p_list	*pip_lstlast(p_list *lst)
 	return (lst);
 }
 
-void	pip_lstadd_back(p_list **lst, p_list *new)
+void	pip_lstadd_back(t_piplist **lst, t_piplist *new)
 {
-	p_list	*temp;
+	t_piplist	*temp;
 
 	if (!lst)
 		return ;
@@ -50,7 +50,7 @@ void	pip_lstadd_back(p_list **lst, p_list *new)
 	temp->next = new;
 }
 
-void	pip_lstclear(p_list **lst, void (*del)(char **))
+void	pip_lstclear(t_piplist **lst, void (*del)(char **))
 {
 	void	*temp;
 
@@ -59,7 +59,7 @@ void	pip_lstclear(p_list **lst, void (*del)(char **))
 	temp = *lst;
 	while (*lst)
 	{
-        free((*lst)->path);
+		free((*lst)->path);
 		del((*lst)->cmd);
 		*lst = (*lst)->next;
 		free(temp);

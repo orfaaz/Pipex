@@ -1,2 +1,3 @@
-tentons un grep pipe double ve ce elle,
-et voyons ce qu'il retourne.
+#!/bin/bash
+
+echo "hello world!"

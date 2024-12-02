@@ -6,7 +6,7 @@
 #    By: agamay <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/16 11:28:00 by agamay            #+#    #+#              #
-#    Updated: 2024/11/16 11:28:03 by agamay           ###   ########.fr        #
+#    Updated: 2024/12/02 17:11:32 by agamay           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ $(NAME): libft $(OBJ)
 test: libft $(OBJ_TEST)
 	$(CC) -o $@ $(OBJ_TEST) $(LIB)
 
-libft:
+libft: libft.a
 	make -C ../libft
 	cp ../libft/libft.a ./
 	make fclean -C ../libft

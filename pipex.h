@@ -6,7 +6,7 @@
 /*   By: agamay <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 14:04:56 by agamay            #+#    #+#             */
-/*   Updated: 2024/11/14 15:36:59 by agamay           ###   ########.fr       */
+/*   Updated: 2024/12/02 16:41:15 by agamay           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,19 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
-typedef	struct	q_list
+typedef struct s_piplist
 {
-	char			*path;
-	char			**cmd;
-	struct q_list	*next;
-}					p_list;
+	char				*path;
+	char				**cmd;
+	struct s_piplist	*next;
+}						t_piplist;
 
-p_list	*parser(int ac, char **av, char **envp);
-void    dbarr_free(char **arr);
-void	closer(int count, ...);
-p_list  *pip_lstnew(char *path, char **cmd);
-p_list	*pip_lstlast(p_list *lst);
-void	pip_lstadd_back(p_list **lst, p_list *new);
-void	pip_lstclear(p_list **lst, void (*del)(char **));
+t_piplist	*parser(int ac, char **av, char **envp);
+void		dbarr_free(char **arr);
+void		closer(int count, ...);
+t_piplist	*pip_lstnew(char *path, char **cmd);
+t_piplist	*pip_lstlast(t_piplist *lst);
+void		pip_lstadd_back(t_piplist **lst, t_piplist *new);
+void		pip_lstclear(t_piplist **lst, void (*del)(char **));
 
 #endif

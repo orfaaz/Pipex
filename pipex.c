@@ -6,27 +6,12 @@
 /*   By: agamay <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 14:04:00 by agamay            #+#    #+#             */
-/*   Updated: 2024/11/14 17:13:31 by agamay           ###   ########.fr       */
+/*   Updated: 2024/12/02 15:33:32 by agamay           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include "libft.h"
-
-// 	while (read_size)//reads and puts successive reads in a list
-// 	{
-// 		lstadd_back(*read_lst);
-// 		read_size = read(fd, *read_lst->content, BUFFER_SIZE);
-// 	}
-// 	strin = malloc(nb of reads * read size + 1);
-// 	while (*read_lst)//cats lst->contents in str
-// 	{
-// 		strin++ = *read_lst->content;
-// 		*read_lst = read_lst=>next;
-// 	}
-// //	close(fd); ?
-// 	return (strin);
-// }
 
 //close multiple fds
 void	closer(int count, ...)
@@ -40,7 +25,7 @@ void	closer(int count, ...)
 }
 
 //executes shell cmd in child process and return result through pipe
-void	ft_exec(p_list *cmdlst, int pfd[2], int ffd[2])
+static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
 {
 	if (cmdlst->next)
 		dup2(pfd[1], 1);
@@ -54,7 +39,7 @@ void	ft_exec(p_list *cmdlst, int pfd[2], int ffd[2])
 }
 
 //creates forks until there are no more cmds to execute
-void	apply_cmds(int ffd[2], p_list *cmdlst)
+static void	apply_cmds(int ffd[2], t_piplist *cmdlst)
 {
 	int		i;
 	int		pfd[2];
@@ -81,28 +66,28 @@ void	apply_cmds(int ffd[2], p_list *cmdlst)
 		cmdlst = cmdlst->next;
 	}
 	waitpid(0, NULL, 0);
-	close(ffd[1]);
 }
 
 // av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
-int main(int ac, char **av, char **envp)
+int	main(int ac, char **av, char **envp)
 {
-	int		ffd[2];
-	p_list	*cmdlst;
+	int			ffd[2];
+	t_piplist	*cmdlst;
 
 	ffd[0] = open(av[1], O_RDONLY);
-		if (ffd[0] == -1)
-		{
-			perror("invalid infile");
-			exit(2);
-		}
-	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0744);
-		if (ffd[1] == -1)
-		{
-			perror("outfile failed");
-			exit(2);
-		}
+	if (ffd[0] == -1)
+	{
+		perror("invalid infile");
+		exit(2);
+	}
+	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (ffd[1] == -1)
+	{
+		perror("outfile failed");
+		exit(2);
+	}
 	cmdlst = parser(ac, av, envp);
 	apply_cmds(ffd, cmdlst);
+	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }
