@@ -65,9 +65,12 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst)
 		closer(2, pfd[0], pfd[1]);
 		cmdlst = cmdlst->next;
 	}
-	waitpid(0, NULL, 0);
+	waitpid(0, NULL, 0); //get pid from last fork, wait in while cmds
 }
 
+// pour imiter bash: if cmd not fount -> prog continue;
+// if invalid infile(rights or not found) -> skip cmd01, continue;
+// if invalid outfile -> ex cmds;
 // av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
 int	main(int ac, char **av, char **envp)
 {

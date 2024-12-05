@@ -37,10 +37,10 @@ $(NAME): libft $(OBJ)
 test: libft $(OBJ_TEST)
 	$(CC) -o $@ $(OBJ_TEST) $(LIB)
 
-libft: libft.a
-	make -C ../libft
+libft:
+	make -sC ../libft 
 	cp ../libft/libft.a ./
-	make fclean -C ../libft
+	make fclean -sC ../libft
 
 all: $(OBJ) $(NAME)
 
