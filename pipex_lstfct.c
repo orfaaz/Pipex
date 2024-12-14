@@ -59,8 +59,11 @@ void	pip_lstclear(t_piplist **lst, void (*del)(char **))
 	temp = *lst;
 	while (*lst)
 	{
-		free((*lst)->path);
-		del((*lst)->cmd);
+		if ((*lst)->path && (*lst)->cmd)
+		{
+			free((*lst)->path);
+			del((*lst)->cmd);
+		}
 		*lst = (*lst)->next;
 		free(temp);
 		temp = *lst;

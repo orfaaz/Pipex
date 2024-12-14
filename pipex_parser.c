@@ -112,10 +112,8 @@ t_piplist	*parser(int ac, char **av, char **envp, int i)
 		{
 			if (!envpath[++j])
 			{
-				ft_printf("cmd not found: %s\n", av[i]);
-				pip_lstclear(&cmdlst, &dbarr_free);
-				dbarr_free(envpath);
-				exit(2);
+				ft_printf("command not found: %s\n", av[i]);
+				pip_lstadd_back(&cmdlst, pip_lstnew(NULL, NULL));
 			}
 		}
 		j = 0;

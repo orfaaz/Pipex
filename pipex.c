@@ -32,6 +32,8 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
 	else
 		dup2(ffd[1], 1);
 	closer(3, pfd[0], pfd[1], ffd[1]);
+	if (!cmdlst->cmd)
+		exit(2);
 	execve(cmdlst->path, cmdlst->cmd, NULL);
 	perror("execve failed");
 	pip_lstclear(&cmdlst, &dbarr_free);
