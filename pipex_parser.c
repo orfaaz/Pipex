@@ -97,16 +97,14 @@ static int	check_access(char *path, char *avi, t_piplist **cmdlst)
 
 //check access(X_OK) of each /PATH/cmd.
 //return a lst containing each *path and **cmd, ready for execve.
-t_piplist	*parser(int ac, char **av, char **envp)
+t_piplist	*parser(int ac, char **av, char **envp, int i)
 {
 	t_piplist	*cmdlst;
 	char		**envpath;
-	int			i;
 	int			j;
 
 	envpath = pathsplit(envp);
 	cmdlst = NULL;
-	i = 1;
 	j = 0;
 	while (++i < ac - 1)
 	{

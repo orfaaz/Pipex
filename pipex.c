@@ -39,14 +39,12 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
 }
 
 //creates forks until there are no more cmds to execute
-static void	apply_cmds(int ffd[2], t_piplist *cmdlst)
+static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
 {
-	int		i;
 	int		pfd[2];
 	int		prev;
 	pid_t	pid;
 
-	i = 1;
 	prev = dup(ffd[0]);
 	close(ffd[0]);
 	while (cmdlst)
@@ -65,7 +63,8 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst)
 		closer(2, pfd[0], pfd[1]);
 		cmdlst = cmdlst->next;
 	}
-	waitpid(0, NULL, 0); //get pid from last fork, wait in while cmds
+	while (len--)
+		waitpid(0, NULL, 0);
 }
 
 // pour imiter bash: if cmd not fount -> prog continue;
@@ -75,22 +74,21 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst)
 int	main(int ac, char **av, char **envp)
 {
 	int			ffd[2];
+	int			i;
 	t_piplist	*cmdlst;
 
+	i = 1;
 	ffd[0] = open(av[1], O_RDONLY);
 	if (ffd[0] == -1)
 	{
-		perror("invalid infile");
-		exit(2);
+		perror("infile failed");
+		i++;
 	}
 	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ffd[1] == -1)
-	{
 		perror("outfile failed");
-		exit(2);
-	}
-	cmdlst = parser(ac, av, envp);
-	apply_cmds(ffd, cmdlst);
+	cmdlst = parser(ac, av, envp, i);
+	apply_cmds(ffd, cmdlst, ac -  3);
 	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }
