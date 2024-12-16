@@ -26,6 +26,21 @@ t_piplist	*pip_lstnew(char *path, char **cmd)
 	return (new_node);
 }
 
+int	pip_lstsize(t_piplist *lst)
+{
+	int		len;
+
+	if (!lst)
+		return (0);
+	len = 1;
+	while (lst->next)
+	{
+		lst = lst->next;
+		len++;
+	}
+	return (len);
+}
+
 t_piplist	*pip_lstlast(t_piplist *lst)
 {
 	if (!lst)

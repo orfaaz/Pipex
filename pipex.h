@@ -32,6 +32,7 @@ t_piplist	*parser(int ac, char **av, char **envp, int i);
 void		dbarr_free(char **arr);
 void		closer(int count, ...);
 t_piplist	*pip_lstnew(char *path, char **cmd);
+int			pip_lstsize(t_piplist *lst);
 t_piplist	*pip_lstlast(t_piplist *lst);
 void		pip_lstadd_back(t_piplist **lst, t_piplist *new);
 void		pip_lstclear(t_piplist **lst, void (*del)(char **));

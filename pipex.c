@@ -13,17 +13,6 @@
 #include "pipex.h"
 #include "libft.h"
 
-//close multiple fds
-void	closer(int count, ...)
-{
-	va_list	arg;
-
-	va_start(arg, count);
-	while (count--)
-		close(va_arg(arg, int));
-	va_end(arg);
-}
-
 //executes shell cmd in child process and return result through pipe
 static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
 {
@@ -69,6 +58,28 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
 		waitpid(0, NULL, 0);
 }
 
+//prepares a pipe to read from for the first cmd
+void here_doc_open(char *limiter, int pfd[][2], char *outfile)
+{
+	int		len;
+	char	*str;
+
+	len = ft_strlen(limiter);
+	if (pipe(*pfd) == -1)
+		perror("pipe creation failed");
+	str = get_next_line(0);
+	while (ft_strncmp(str, limiter, len))
+	{
+		write(*pfd[1], str, BUFFER_SIZE);
+		free(str);
+		str = get_next_line(0); //needs to be fred when limiter is found.
+	}
+	close(*pfd[1]);
+	*pfd[1] = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (*pfd[1] == -1)
+		perror("outfile failed");
+}
+
 // pour imiter bash: if cmd not fount -> prog continue;
 // if invalid infile(rights or not found) -> skip cmd01, continue;
 // if invalid outfile -> ex cmds;
@@ -76,21 +87,27 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
 int	main(int ac, char **av, char **envp)
 {
 	int			ffd[2];
-	int			i;
+	int			jump_firstcmd;
 	t_piplist	*cmdlst;
 
-	i = 1;
-	ffd[0] = open(av[1], O_RDONLY);
-	if (ffd[0] == -1)
+	jump_firstcmd = 1;
+	if (!ft_strncmp(av[1], "here_doc", 8))
+		here_doc_open(av[2], &ffd, av[ac - 1]);
+	else
 	{
-		perror("infile failed");
-		i++;
+		ffd[0] = open(av[1], O_RDONLY);
+		if (ffd[0] == -1)
+		{
+			perror("infile failed");
+			jump_firstcmd++;
+		}
+		ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (ffd[1] == -1)
+			perror("outfile failed");
 	}
-	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (ffd[1] == -1)
-		perror("outfile failed");
-	cmdlst = parser(ac, av, envp, i);
-	apply_cmds(ffd, cmdlst, ac -  3);
+	cmdlst = parser(ac, av, envp, jump_firstcmd);
+	int len = pip_lstsize(cmdlst);
+	apply_cmds(ffd, cmdlst, len);
 	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }

@@ -13,20 +13,6 @@
 #include "pipex.h"
 #include "libft.h"
 
-void	dbarr_free(char **arr)
-{
-	int	size;
-
-	size = 0;
-	while (*arr)
-	{
-		free(*arr);
-		arr++;
-		size++;
-	}
-	free(arr - size);
-}
-
 //Creates an **arr of all pathes in envp PATH.
 //So we can look for shell cmds in these later
 static char	**pathsplit(char **envp)

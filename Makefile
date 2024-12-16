@@ -14,7 +14,8 @@ NAME = pipex
 
 SRC = pipex.c \
 	pipex_parser.c \
-	pipex_lstfct.c
+	pipex_lstfct.c \
+	pipex_utils.c
 
 SRC_TEST = test01.c
 
