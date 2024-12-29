@@ -25,14 +25,14 @@ void	closer(int count, ...)
 }
 
 //executes shell cmd in child process and return result through pipe
-static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
+static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2], int jump_cmd)
 {
 	if (cmdlst->next)
 		dup2(pfd[1], 1);
 	else
 		dup2(ffd[1], 1);
 	closer(3, pfd[0], pfd[1], ffd[1]);
-	if (!cmdlst->cmd)
+	if (!cmdlst->cmd || jump_cmd == 1)
 		exit(2);
 	execve(cmdlst->path, cmdlst->cmd, NULL);
 	perror("execve failed");
@@ -41,7 +41,7 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2])
 }
 
 //creates forks until there are no more cmds to execute
-static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
+static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len, int jump_cmd)
 {
 	int		pfd[2];
 	int		prev;
@@ -58,8 +58,9 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
 		{
 			dup2(prev, 0);
 			close(prev);
-			ft_exec(cmdlst, pfd, ffd);
+			ft_exec(cmdlst, pfd, ffd, jump_cmd);
 		}
+		jump_cmd = 0;
 		close(prev);
 		prev = dup(pfd[0]);
 		closer(2, pfd[0], pfd[1]);
@@ -69,28 +70,24 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len)
 		waitpid(0, NULL, 0);
 }
 
-// pour imiter bash: if cmd not fount -> prog continue;
-// if invalid infile(rights or not found) -> skip cmd01, continue;
-// if invalid outfile -> ex cmds;
-// av[1]=infile av[2..n]=cmds av[ac - 1]=outfile
 int	main(int ac, char **av, char **envp)
 {
 	int			ffd[2];
-	int			i;
+	int			jump_cmd;
 	t_piplist	*cmdlst;
 
-	i = 1;
+	jump_cmd = 0;
 	ffd[0] = open(av[1], O_RDONLY);
 	if (ffd[0] == -1)
 	{
 		perror("infile failed");
-		i++;
+		jump_cmd++;
 	}
 	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ffd[1] == -1)
 		perror("outfile failed");
-	cmdlst = parser(ac, av, envp, i);
-	apply_cmds(ffd, cmdlst, ac -  3);
+	cmdlst = parser(ac, av, envp);
+	apply_cmds(ffd, cmdlst, ac -  3, jump_cmd);
 	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }

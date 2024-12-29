@@ -28,7 +28,7 @@ typedef struct s_piplist
 	struct s_piplist	*next;
 }						t_piplist;
 
-t_piplist	*parser(int ac, char **av, char **envp, int i);
+t_piplist	*parser(int ac, char **av, char **envp);
 void		dbarr_free(char **arr);
 void		closer(int count, ...);
 t_piplist	*pip_lstnew(char *path, char **cmd);
