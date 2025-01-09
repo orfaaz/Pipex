@@ -26,6 +26,7 @@ typedef struct s_piplist
 	char				*path;
 	char				**cmd;
 	struct s_piplist	*next;
+	struct s_piplist	*prev;
 }						t_piplist;
 
 t_piplist	*parser(int ac, char **av, char **envp);

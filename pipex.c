@@ -33,11 +33,11 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2], int jump_cmd)
 		dup2(ffd[1], 1);
 	closer(3, pfd[0], pfd[1], ffd[1]);
 	if (!cmdlst->cmd || jump_cmd == 1)
-		exit(2);
+		exit(EXIT_SUCCESS);
 	execve(cmdlst->path, cmdlst->cmd, NULL);
 	perror("execve failed");
 	pip_lstclear(&cmdlst, &dbarr_free);
-	exit(2);
+	exit(EXIT_FAILURE);
 }
 
 //creates forks until there are no more cmds to execute

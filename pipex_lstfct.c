@@ -23,6 +23,7 @@ t_piplist	*pip_lstnew(char *path, char **cmd)
 	new_node->path = path;
 	new_node->cmd = cmd;
 	new_node->next = NULL;
+	new_node->prev = NULL;
 	return (new_node);
 }
 
@@ -37,7 +38,7 @@ t_piplist	*pip_lstlast(t_piplist *lst)
 
 void	pip_lstadd_back(t_piplist **lst, t_piplist *new)
 {
-	t_piplist	*temp;
+	t_piplist	*last;
 
 	if (!lst)
 		return ;
@@ -46,8 +47,9 @@ void	pip_lstadd_back(t_piplist **lst, t_piplist *new)
 		*lst = new;
 		return ;
 	}
-	temp = pip_lstlast(*lst);
-	temp->next = new;
+	last = pip_lstlast(*lst);
+	last->next = new;
+	new->prev = last;
 }
 
 void	pip_lstclear(t_piplist **lst, void (*del)(char **))
@@ -56,6 +58,8 @@ void	pip_lstclear(t_piplist **lst, void (*del)(char **))
 
 	if (!(lst && *lst && del))
 		return ;
+	while ((*lst)->prev)
+		*lst = (*lst)->prev;
 	temp = *lst;
 	while (*lst)
 	{

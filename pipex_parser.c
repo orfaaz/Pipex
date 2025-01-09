@@ -77,7 +77,7 @@ static int	check_access(char *path, char *avi, t_piplist **cmdlst)
 	if (!cmd)
 	{
 		perror("split failed");
-		exit (2);
+		exit (EXIT_FAILURE);
 	}
 	if (!access(cmd[0], X_OK))
 	{
