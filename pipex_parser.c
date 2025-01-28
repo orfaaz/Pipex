@@ -13,20 +13,6 @@
 #include "pipex.h"
 #include "libft.h"
 
-void	dbarr_free(char **arr)
-{
-	int	size;
-
-	size = 0;
-	while (*arr)
-	{
-		free(*arr);
-		arr++;
-		size++;
-	}
-	free(arr - size);
-}
-
 //Creates an **arr of all pathes in envp PATH.
 //So we can look for shell cmds in these later
 static char	**pathsplit(char **envp)
@@ -36,6 +22,7 @@ static char	**pathsplit(char **envp)
 	int		stop;
 
 	stop = 1;
+	ret = NULL;
 	while (*envp && stop)
 	{
 		if (!ft_strncmp(*envp, "PATH=", 5))
@@ -79,15 +66,15 @@ static int	check_access(char *path, char *avi, t_piplist **cmdlst)
 		perror("split failed");
 		exit (EXIT_FAILURE);
 	}
-	if (!access(cmd[0], X_OK))
-	{
-		arg_path_parse(path, cmd, cmdlst);
-		return (1);
-	}
 	path_cmd = ft_vastrjoin(3, path, "/", cmd[0]);
 	if (!access(path_cmd, X_OK))
 	{
 		pip_lstadd_back(cmdlst, pip_lstnew(path_cmd, cmd));
+		return (1);
+	}
+	if (!access(cmd[0], X_OK))
+	{
+		arg_path_parse(path, cmd, cmdlst);
 		return (1);
 	}
 	free(path_cmd);
@@ -105,6 +92,8 @@ t_piplist	*parser(int ac, char **av, char **envp)
 	int			j;
 
 	envpath = pathsplit(envp);
+	if (!envpath)
+		ft_error(2);
 	cmdlst = NULL;
 	i = 1;
 	j = 0;

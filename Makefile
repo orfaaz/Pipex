@@ -14,7 +14,8 @@ NAME = pipex
 
 SRC = pipex.c \
 	pipex_parser.c \
-	pipex_lstfct.c
+	pipex_lstfct.c \
+	pipex_utils.c
 
 SRC_TEST = test01.c
 
@@ -40,6 +41,7 @@ test: libft $(OBJ_TEST)
 libft:
 	make -sC ../libft 
 	cp ../libft/libft.a ./
+	cp ../libft/libft.h ./
 	make fclean -sC ../libft
 
 all: $(OBJ) $(NAME)
@@ -51,6 +53,7 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 	rm -f libft.a
+	rm -f libft.h
 
 re: fclean all
 

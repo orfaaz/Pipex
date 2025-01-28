@@ -31,6 +31,7 @@ typedef struct s_piplist
 
 t_piplist	*parser(int ac, char **av, char **envp);
 void		dbarr_free(char **arr);
+void		ft_error(int errtype);
 void		closer(int count, ...);
 t_piplist	*pip_lstnew(char *path, char **cmd);
 t_piplist	*pip_lstlast(t_piplist *lst);

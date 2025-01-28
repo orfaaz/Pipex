@@ -79,6 +79,10 @@ int	main(int ac, char **av, char **envp)
 	int			jump_cmd;
 	t_piplist	*cmdlst;
 
+	if (ac < 4)
+		ft_error(0);
+	if (!envp)
+		ft_error(1);
 	jump_cmd = 0;
 	ffd[0] = open(av[1], O_RDONLY);
 	if (ffd[0] == -1)
@@ -88,9 +92,12 @@ int	main(int ac, char **av, char **envp)
 	}
 	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ffd[1] == -1)
+	{
 		perror("outfile failed");
+		exit (EXIT_FAILURE);
+	}
 	cmdlst = parser(ac, av, envp);
-	apply_cmds(ffd, cmdlst, ac -  3, jump_cmd);
+	apply_cmds(ffd, cmdlst, ac - 3, jump_cmd);
 	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }
