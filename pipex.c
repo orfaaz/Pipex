@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "libft.h"
 
 //close multiple fds
 void	closer(int count, ...)
@@ -29,8 +28,13 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2], int jump_cmd)
 {
 	if (cmdlst->next)
 		dup2(pfd[1], 1);
-	else
+	else if (ffd[1] != -1)
 		dup2(ffd[1], 1);
+	else
+	{
+		pip_lstclear(&cmdlst, &dbarr_free);
+		exit(EXIT_SUCCESS);
+	}
 	closer(3, pfd[0], pfd[1], ffd[1]);
 	if (!cmdlst->cmd || jump_cmd == 1)
 	{
@@ -54,9 +58,8 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len, int jump_cmd)
 	close(ffd[0]);
 	while (cmdlst)
 	{
-		if (pipe(pfd) == -1)
-			perror("pipe creation failed");
-		pid = fork();
+		secured_pipe(&pfd, cmdlst, ffd, prev);
+		pid = secured_fork(cmdlst, pfd, ffd, prev);
 		if (!pid)
 		{
 			dup2(prev, 0);
@@ -69,8 +72,8 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len, int jump_cmd)
 		closer(2, pfd[0], pfd[1]);
 		cmdlst = cmdlst->next;
 	}
-	while (len--)
-		waitpid(0, NULL, 0);
+	close(prev);
+	waiter(len, cmdlst);
 }
 
 int	main(int ac, char **av, char **envp)
@@ -92,10 +95,7 @@ int	main(int ac, char **av, char **envp)
 	}
 	ffd[1] = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ffd[1] == -1)
-	{
 		perror("outfile failed");
-		exit (EXIT_FAILURE);
-	}
 	cmdlst = parser(ac, av, envp);
 	apply_cmds(ffd, cmdlst, ac - 3, jump_cmd);
 	close(ffd[1]);

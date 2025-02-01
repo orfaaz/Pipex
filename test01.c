@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include "libft.h"
+#include "pipex.h"
 /*
 int	main()
 {

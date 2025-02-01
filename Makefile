@@ -17,44 +17,38 @@ SRC = pipex.c \
 	pipex_lstfct.c \
 	pipex_utils.c
 
-SRC_TEST = test01.c
+LIBDIR = ../libft
+LIB = $(LIBDIR)/libft.a
 
-LIB = libft.a
-
+OBJDIR = .obj
 OBJ = $(SRC:.c=.o)
-
-OBJ_TEST = $(SRC_TEST:.c=.o)
+OBJ := $(addprefix $(OBJDIR)/, $(OBJ))
 
 CFLAGS = -Wall -Werror -Wextra -g
+LDFLAGS = -I $(LIBDIR)/
 
 CC = cc
 
-$(NAME): libft $(OBJ)
-	$(CC) -o $(NAME) $(OBJ) $(LIB)
+$(NAME): $(LIB) $(OBJ)
+	$(CC) -o $(NAME) $(OBJ) $(LIB) $(LDFLAGS)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+all: $(LIB) $(OBJ) $(NAME)
 
-test: libft $(OBJ_TEST)
-	$(CC) -o $@ $(OBJ_TEST) $(LIB)
+$(OBJDIR)/%.o: %.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c -o $@ $^ $(LDFLAGS)
 
-libft:
-	make -sC ../libft 
-	cp ../libft/libft.a ./
-	cp ../libft/libft.h ./
-	make fclean -sC ../libft
-
-all: $(OBJ) $(NAME)
+$(LIB):
+	make -sC $(LIBDIR)
 
 clean:
-	rm -f $(OBJ)
-	rm -f $(OBJ_TEST)
+	rm -rf $(OBJDIR)
+	make -sC $(LIBDIR) clean
 
 fclean: clean
 	rm -f $(NAME)
-	rm -f libft.a
-	rm -f libft.h
+	make -sC $(LIBDIR) fclean
 
 re: fclean all
 
-.PHONY: all clean fclean re test libft
+.PHONY: all clean fclean re libft

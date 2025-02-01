@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "libft.h"
 
 t_piplist	*pip_lstnew(char *path, char **cmd)
 {

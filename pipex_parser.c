@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "libft.h"
 
 //Creates an **arr of all pathes in envp PATH.
 //So we can look for shell cmds in these later
