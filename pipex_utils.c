@@ -85,11 +85,5 @@ void	waiter(int len, t_piplist *cmdlst)
 			pip_lstclear(&cmdlst, &dbarr_free);
 			exit(EXIT_FAILURE);
 		}
-		if (!WIFEXITED(status))
-		{
-			ft_printf("error in %d child", pid);
-			pip_lstclear(&cmdlst, &dbarr_free);
-			exit(EXIT_FAILURE);
-		}
 	}
 }

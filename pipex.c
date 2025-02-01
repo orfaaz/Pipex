@@ -16,10 +16,15 @@
 void	closer(int count, ...)
 {
 	va_list	arg;
+	int		fd;
 
 	va_start(arg, count);
 	while (count--)
-		close(va_arg(arg, int));
+	{
+		fd = va_arg(arg, int);
+		if (fd != -1)
+			close(fd);
+	}
 	va_end(arg);
 }
 
@@ -33,13 +38,14 @@ static void	ft_exec(t_piplist *cmdlst, int pfd[2], int ffd[2], int jump_cmd)
 	else
 	{
 		pip_lstclear(&cmdlst, &dbarr_free);
-		exit(EXIT_SUCCESS);
+		closer(3, pfd[0], pfd[1], ffd[1]);
+		exit(EXIT_FAILURE);
 	}
 	closer(3, pfd[0], pfd[1], ffd[1]);
 	if (!cmdlst->cmd || jump_cmd == 1)
 	{
 		pip_lstclear(&cmdlst, &dbarr_free);
-		exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
 	}
 	execve(cmdlst->path, cmdlst->cmd, NULL);
 	perror("execve failed");
@@ -72,7 +78,7 @@ static void	apply_cmds(int ffd[2], t_piplist *cmdlst, int len, int jump_cmd)
 		closer(2, pfd[0], pfd[1]);
 		cmdlst = cmdlst->next;
 	}
-	close(prev);
+	closer(2, prev, ffd[1]);
 	waiter(len, cmdlst);
 }
 
@@ -98,6 +104,5 @@ int	main(int ac, char **av, char **envp)
 		perror("outfile failed");
 	cmdlst = parser(ac, av, envp);
 	apply_cmds(ffd, cmdlst, ac - 3, jump_cmd);
-	close(ffd[1]);
 	pip_lstclear(&cmdlst, &dbarr_free);
 }
